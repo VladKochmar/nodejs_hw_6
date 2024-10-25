@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="/stylesheets/style.css">
+  <script src="/javascripts/RequestManager.js"></script>
+  <title>Cars Table</title>
+</head>
+
+<body>
+  <%- include('../sections/header.ejs') %>
+    <main>
+      <h1>Cars Table</h1>
+      <table>
+        <tr>
+          <th></th>
+          <th>Brand</th>
+          <th>Year</th>
+          <th>Number</th>
+        </tr>
+        <% cars.forEach(car=> { %>
+          <tr>
+            <td class="td">
+              <img src="/<%= car.imgSrc %>" alt="<%= car.brand %>" width="240" height="180">
+            </td>
+            <td class="td">
+              <a href="/cars/<%= car.id %>">
+                <%= car.brand %>
+              </a>
+            </td>
+            <td class="td">
+              <%= car.year %>
+            </td>
+            <td class="td">
+              <%= car.number %>
+            </td>
+            <td class="td">
+              <a href="/cars/create/<%= car.id %>">Edit</a>
+            </td>
+            <td class="td">
+              <button onclick="RequestManager.deleteRequest('/cars', '<%= car.id %>' )">
+                Delete
+              </button>
+            </td>
+          </tr>
+          <% }) %>
+      </table>
+    </main>
+</body>
+
+</html>
