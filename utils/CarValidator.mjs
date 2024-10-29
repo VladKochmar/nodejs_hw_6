@@ -13,7 +13,7 @@ class CarValidator {
       },
       isInt: {
         options: { min: 1990, max: 2024 },
-        errorMessage: 'Must be a number between 2000 and 2024',
+        errorMessage: 'Must be a number between 1990 and 2024',
       },
       trim: true,
       escape: true,

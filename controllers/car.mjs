@@ -1,39 +1,47 @@
-import Car from '../models/Car.mjs'
+import CarsDBService from '../models/car/CarsDBService.mjs'
+import { validationResult } from 'express-validator'
+import config from '../config/default.mjs'
 import fs from 'fs'
 import path from 'path'
-import settings from '../settings.mjs'
-import { validationResult } from 'express-validator'
 
 class CarController {
-  static carsList(req, res) {
-    const carsList = Car.loadCarsList()
+  static async carsList(req, res) {
+    try {
+      const dataList = await CarsDBService.getList()
 
-    res.render('cars/carsList', {
-      cars: carsList,
-    })
+      res.render('cars/carsList', { cars: dataList })
+    } catch (err) {
+      res.status(500).json({ error: err.message })
+    }
   }
 
-  static carsDetails(req, res) {
-    const car = Car.getCarById(req.params.id)
-    res.render('cars/details', { car })
+  static async carsDetails(req, res) {
+    try {
+      const car = await CarsDBService.getById(req.params.id)
+      res.render('cars/details', { car })
+    } catch (err) {
+      res.status(500).json({ error: err.message })
+    }
   }
 
-  static carCreationForm(req, res) {
-    const id = req.params.id
-    let car = null
+  static async carCreationForm(req, res) {
+    try {
+      const id = req.params.id
+      let car = null
 
-    if (id) car = Car.getCarById(id)
+      if (id) car = await CarsDBService.getById(id)
 
-    res.render('cars/form', { car, errors: null })
+      res.render('cars/form', { car, errors: null })
+    } catch (err) {
+      res.status(500).json({ error: err.message })
+    }
   }
 
-  static createCar(req, res) {
+  static async createCar(req, res) {
     const errors = validationResult(req)
-    console.log('errors')
-    console.log(errors)
+    const car = req.body
 
     if (!errors.isEmpty()) {
-      const car = req.body
       if (req.params.id) car.id = req.params.id
 
       const formattedErrors = {}
@@ -51,31 +59,37 @@ class CarController {
       })
     }
 
-    const { brand, year, number } = req.body
+    try {
+      const { brand, year, number } = req.body
 
-    if (req.params.id) {
-      const updatedProps = { brand, year, number }
-      if (req.file?.filename) updatedProps.imgSrc = req.file.filename
-      Car.updateCar(req.params.id, updatedProps)
-    } else {
-      Car.create({ brand, year, number, imgSrc: req.file.filename })
+      if (req.params.id) {
+        const updatedProps = { brand, year, number }
+        if (req.file?.filename) updatedProps.imgSrc = req.file.filename
+        await CarsDBService.update(req.params.id, updatedProps)
+      } else {
+        CarsDBService.create({ brand, year, number, imgSrc: req.file.filename })
+      }
+
+      res.redirect('/cars')
+    } catch (err) {
+      res.status(500).json({ error: err.message })
     }
-
-    res.redirect('/cars')
   }
 
   static async deleteCar(req, res) {
     try {
-      const car = Car.getCarById(req.body.id)
+      const car = await CarsDBService.getById(req.body.id)
 
       if (car.imgSrc) {
-        fs.unlinkSync(path.join(settings.rootDir, `uploads\\${car.imgSrc}`))
+        fs.unlinkSync(path.join(config.rootDir, `uploads\\${car.imgSrc}`))
       }
 
-      await Car.deleteCar(req.body.id)
+      await CarsDBService.deleteById(req.body.id)
       res.json({ success: true })
     } catch (err) {
-      res.status(500).json({ success: false, message: 'Failed to delete car' })
+      console.error(err)
+
+      res.status(500).json({ success: false, message: 'Failed to delete user' })
     }
   }
 }
