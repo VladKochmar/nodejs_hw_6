@@ -19,6 +19,8 @@
           <th>Brand</th>
           <th>Year</th>
           <th>Number</th>
+          <th>Owner Name</th>
+          <th>Owner Address</th>
         </tr>
         <% cars.forEach(car=> { %>
           <tr>
@@ -35,6 +37,12 @@
             </td>
             <td class="td">
               <%= car.number %>
+            </td>
+            <td>
+              <%= car?.owner?.fullName %>
+            </td>
+            <td>
+              <%= car?.owner?.address %>
             </td>
             <td class="td">
               <a href="/cars/create/<%= car.id %>">Edit</a>

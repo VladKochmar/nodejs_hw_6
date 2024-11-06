@@ -38,6 +38,15 @@
           </p>
         </div>
         <div class="form__item">
+          <select name="owner" class="form__input">
+            <% owners.forEach(owner=> { %>
+              <option value="<%= owner._id %>">
+                <%= owner.fullName %> - <%= owner.address %>
+              </option>
+              <% }) %>
+          </select>
+        </div>
+        <div class="form__item">
           <label class="form__label">
             <span class="form__file-add">Car image (add file)</span>
             <input type="file" value="<%= car && car.imgSrc ? car.imgSrc : '/photo-not-available.jpg' %>" accept="image/*" name="imgSrc" onchange="onFileInput(event)" class="form__img-inp">

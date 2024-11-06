@@ -1,4 +1,5 @@
 import CarsDBService from '../models/car/CarsDBService.mjs'
+import OwnerDBService from '../models/owner/OwnersDBService.mjs'
 import { validationResult } from 'express-validator'
 import config from '../config/default.mjs'
 import fs from 'fs'
@@ -30,8 +31,9 @@ class CarController {
       let car = null
 
       if (id) car = await CarsDBService.getById(id)
+      const owners = await OwnerDBService.getList()
 
-      res.render('cars/form', { car, errors: null })
+      res.render('cars/form', { car, owners, errors: null })
     } catch (err) {
       res.status(500).json({ error: err.message })
     }
@@ -40,6 +42,7 @@ class CarController {
   static async createCar(req, res) {
     const errors = validationResult(req)
     const car = req.body
+    const owners = await OwnerDBService.getList()
 
     if (!errors.isEmpty()) {
       if (req.params.id) car.id = req.params.id
@@ -56,18 +59,19 @@ class CarController {
       return res.status(400).render('cars/form', {
         errors: formattedErrors,
         car,
+        owners,
       })
     }
 
     try {
-      const { brand, year, number } = req.body
+      const { brand, year, number, owner } = req.body
 
       if (req.params.id) {
-        const updatedProps = { brand, year, number }
+        const updatedProps = { brand, year, number, owner }
         if (req.file?.filename) updatedProps.imgSrc = req.file.filename
         await CarsDBService.update(req.params.id, updatedProps)
       } else {
-        CarsDBService.create({ brand, year, number, imgSrc: req.file.filename })
+        CarsDBService.create({ brand, year, number, owner, imgSrc: req.file.filename })
       }
 
       res.redirect('/cars')

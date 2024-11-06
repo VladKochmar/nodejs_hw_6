@@ -30,6 +30,10 @@ const carSchema = new Schema({
     required: [true, 'Car image is required'],
     trim: true,
   },
+  owner: {
+    type: Schema.Types.ObjectId,
+    ref: 'Owner',
+  },
 })
 
 carSchema.statics.checkDatabaseExists = async () => {

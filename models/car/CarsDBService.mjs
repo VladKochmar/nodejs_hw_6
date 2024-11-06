@@ -5,12 +5,9 @@ class CarsDBService {
     try {
       const exists = await Car.checkCollectionExists()
 
-      if (exists) {
-        const data = await Car.find().exec()
-        return data
-      }
+      if (!exists) return []
 
-      return (await Car.find({})) ?? []
+      return await Car.find().populate('owner').exec()
     } catch (err) {
       console.error(err)
       return []
